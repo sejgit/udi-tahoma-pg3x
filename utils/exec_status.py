@@ -1,4 +1,4 @@
-"""TaHoma execution status mapping for shade Last Command (GV7) driver."""
+"""TaHoma execution status mapping for shade Last Command drivers (GV7, GV8)."""
 
 from __future__ import annotations
 
@@ -59,6 +59,41 @@ def execution_state_to_last_cmd(state: ExecutionState | str | None) -> int | Non
     if parsed in _PENDING_STATES:
         return LAST_CMD_PENDING
     return None
+
+
+# GV8 Last Command Executed (uom 25, SHADECMDEXEC NLS)
+LAST_CMD_EXEC_NONE = 0
+LAST_CMD_EXEC_OPEN = 1
+LAST_CMD_EXEC_CLOSE = 2
+LAST_CMD_EXEC_STOP = 3
+LAST_CMD_EXEC_MY = 4
+
+_LAST_CMD_EXEC_LABELS = {
+    LAST_CMD_EXEC_NONE: "None",
+    LAST_CMD_EXEC_OPEN: "Open",
+    LAST_CMD_EXEC_CLOSE: "Close",
+    LAST_CMD_EXEC_STOP: "Stop",
+    LAST_CMD_EXEC_MY: "My Position",
+}
+
+_TAHOMA_CMD_TO_LAST_CMD_EXEC = {
+    "open": LAST_CMD_EXEC_OPEN,
+    "close": LAST_CMD_EXEC_CLOSE,
+    "stop": LAST_CMD_EXEC_STOP,
+    "my": LAST_CMD_EXEC_MY,
+}
+
+
+def last_cmd_exec_label(status: int) -> str:
+    """Return a short label for Last Command Executed logs."""
+    return _LAST_CMD_EXEC_LABELS.get(status, str(status))
+
+
+def tahoma_command_to_last_cmd_exec(command_name: str | None) -> int | None:
+    """Map a TaHoma shade command name to GV8 value, or None if not tracked."""
+    if not command_name:
+        return None
+    return _TAHOMA_CMD_TO_LAST_CMD_EXEC.get(command_name.strip().lower())
 
 
 def scenario_parent_exec_to_last_cmd(state: ExecutionState | str | None) -> int | None:

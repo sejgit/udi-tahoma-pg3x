@@ -30,6 +30,7 @@ ND-shadertsid-ICON = GenericRspCtl
 ST-shaderts-GV0-NAME = Id
 ST-shaderts-GV6-NAME = Battery
 ST-shaderts-GV7-NAME = Last Command
+ST-shaderts-GV8-NAME = Last Command Executed
 CMD-shaderts-OPEN-NAME = Open
 CMD-shaderts-CLOSE-NAME = Close
 CMD-shaderts-STOP-NAME = Stop
@@ -47,6 +48,7 @@ ST-shade-GV4-NAME = Tilt
 ST-shade-GV5-NAME = Protocol
 ST-shade-GV6-NAME = Battery
 ST-shade-GV7-NAME = Last Command
+ST-shade-GV8-NAME = Last Command Executed
 CMD-shade-OPEN-NAME = Open
 CMD-shade-CLOSE-NAME = Close
 CMD-shade-STOP-NAME = Stop
@@ -82,6 +84,12 @@ EXECSTAT-0 = —
 EXECSTAT-1 = Pending
 EXECSTAT-2 = Completed
 EXECSTAT-3 = Failed
+
+SHADECMDEXEC-0 = None
+SHADECMDEXEC-1 = Open
+SHADECMDEXEC-2 = Close
+SHADECMDEXEC-3 = Stop
+SHADECMDEXEC-4 = My Position
 
 BOOL-2 = N/A
 

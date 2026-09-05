@@ -2,6 +2,10 @@
 
 
 
+## 0.0.25
+
+- **Shade Last Command Executed (GV8)**: new status alongside Last Command (GV7); reports Open, Close, Stop, or My Position when sent; starts as None on node startup; GV7 still tracks Pending / Completed / Failed from the gateway
+
 ## 0.0.24
 
 - **Clear server error sooner when the TaHoma gateway recovers**: auto-reconnect restores controller Connection status (ST=1) and clears the Polyglot error notice without a NodeServer restart

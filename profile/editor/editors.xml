@@ -18,6 +18,9 @@
     <editor id="EXECSTAT">
         <range uom="25" subset="0,1,2,3" nls="EXECSTAT" />
     </editor>
+    <editor id="SHADECMDEXEC">
+        <range uom="25" subset="0,1,2,3,4" nls="SHADECMDEXEC" />
+    </editor>
     <editor id="POSITION">
         <range uom="2" subset="0" />
         <range uom="100" min="0" max="100" />

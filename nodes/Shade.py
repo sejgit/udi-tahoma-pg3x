@@ -8,9 +8,12 @@ from threading import Thread
 import udi_interface
 
 from utils.exec_status import (
+    LAST_CMD_EXEC_NONE,
     LAST_CMD_FAILED,
     LAST_CMD_NONE,
     LAST_CMD_PENDING,
+    last_cmd_exec_label,
+    tahoma_command_to_last_cmd_exec,
 )
 from utils.device_capabilities import (
     CMD_CLOSURE,
@@ -37,6 +40,12 @@ SHADE_RTS_DRIVERS = [
     {"driver": "GV0", "value": 0, "uom": 107, "name": "Shade Id"},
     {"driver": "GV6", "value": GV6_UNKNOWN, "uom": 25, "name": "Battery Status"},
     {"driver": "GV7", "value": LAST_CMD_NONE, "uom": 25, "name": "Last Command"},
+    {
+        "driver": "GV8",
+        "value": LAST_CMD_EXEC_NONE,
+        "uom": 25,
+        "name": "Last Command Executed",
+    },
 ]
 
 # Shared driver definitions (full generic UI)
@@ -50,6 +59,12 @@ SHADE_DRIVERS_FULL = [
     {"driver": "GV5", "value": 0, "uom": 25, "name": "Protocol"},
     {"driver": "GV6", "value": GV6_UNKNOWN, "uom": 25, "name": "Battery Status"},
     {"driver": "GV7", "value": LAST_CMD_NONE, "uom": 25, "name": "Last Command"},
+    {
+        "driver": "GV8",
+        "value": LAST_CMD_EXEC_NONE,
+        "uom": 25,
+        "name": "Last Command Executed",
+    },
 ]
 
 # TaHoma state name -> (driver, uom when value present)
@@ -132,6 +147,7 @@ class Shade(udi_interface.Node):
 
         self._load_profile()
         self._apply_profile_drivers()
+        self.setDriver("GV8", LAST_CMD_EXEC_NONE, report=True, force=True, uom=25)
 
         if self.device_url:
             device_id_hash = abs(hash(self.device_url)) % 9999999
@@ -175,6 +191,10 @@ class Shade(udi_interface.Node):
     def set_last_command(self, status: int):
         """Update GV7 Last Command driver (EXECSTAT uom 25)."""
         self.setDriver("GV7", status, report=True, force=False, uom=25)
+
+    def set_last_command_executed(self, status: int):
+        """Update GV8 Last Command Executed driver (SHADECMDEXEC uom 25)."""
+        self.setDriver("GV8", status, report=True, force=False, uom=25)
 
     def updateData(self):
         try:
@@ -379,6 +399,13 @@ class Shade(udi_interface.Node):
 
     def execute_tahoma_command(self, command_name, parameters):
         import asyncio
+
+        exec_value = tahoma_command_to_last_cmd_exec(command_name)
+        if exec_value is not None:
+            self.set_last_command_executed(exec_value)
+            LOGGER.info(
+                f"{self.lpfx} Last Command Executed: {last_cmd_exec_label(exec_value)}"
+            )
 
         try:
             exec_id = asyncio.run_coroutine_threadsafe(

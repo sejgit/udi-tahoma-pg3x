@@ -231,7 +231,7 @@ Shade and scene nodes subscribe to shortPoll for Polyglot compatibility but do n
 
 ### RTS shades and Last Command
 
-RTS devices are discovered as **RTS Shade** nodes (Id, Battery, **Last Command** only — no position or motion fields).
+RTS devices are discovered as **RTS Shade** nodes (Id, Battery, **Last Command**, **Last Command Executed** — no position or motion fields).
 
 **Last Command (GV7)** reports whether the TaHoma gateway finished handling your command:
 
@@ -240,9 +240,16 @@ RTS devices are discovered as **RTS Shade** nodes (Id, Battery, **Last Command**
 - **Completed** — Gateway reports the execution finished
 - **Failed** — Gateway reports failure
 
+**Last Command Executed (GV8)** records which shade command you last sent:
+
+- **None** — At node startup (resets each restart)
+- **Open**, **Close**, **Stop**, **My Position** — Set when that command is sent from the ISY
+
+Use **Last Command Executed** in programs when you need to know *what* was sent; use **Last Command** when you need to know *whether the gateway finished* it.
+
 **Important:** On RTS, the blind often stops moving long before **Last Command** shows **Completed**. The TaHoma gateway may keep the execution in a pending state for up to about a minute while its internal timers run — this is normal gateway behavior, not a stuck motor. **Completed** means the gateway finished processing the command, not that the shade reached a specific position.
 
-Use **Last Command** in ISY programs (e.g. notify on **Failed**, or proceed when **Completed**). The startup success notice in Polyglot clears automatically after 30 seconds.
+The startup success notice in Polyglot clears automatically after 30 seconds.
 
 ### Scene Activate (optional, cloud-only)
 
