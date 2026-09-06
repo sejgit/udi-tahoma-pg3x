@@ -43,6 +43,7 @@ SKIP_CONTROLLABLE_PREFIXES = (
     "zigbee:Transceiver",
     "internal:Pod",
     "internal:Wifi",
+    "ogp:Bridge",
 )
 
 BATTERY_STATE_TO_GV6: dict[str, int] = {
