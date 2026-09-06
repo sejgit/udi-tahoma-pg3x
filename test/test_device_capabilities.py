@@ -65,6 +65,18 @@ class TestShouldCreateShadeNode:
             is False
         )
 
+    def test_ogp_bridge_skipped(self):
+        assert (
+            should_create_shade_node(
+                _device(
+                    url="ogp://2076-5923-5791/0003FEF3",
+                    controllable="ogp:Bridge",
+                    ui_class="ProtocolGateway",
+                )
+            )
+            is False
+        )
+
 
 class TestBuildDeviceProfile:
     def test_rts_exterior_blind_from_logs(self):

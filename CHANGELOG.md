@@ -2,6 +2,10 @@
 
 
 
+## 0.0.26
+
+- **Skip OGP protocol gateway during discovery**: TaHoma reports `ogp:Bridge` (Open Generic Protocol gateway) as a device; it is infrastructure, not a shade. Previously it appeared as an extra node with no useful commands. Run **Discover** after updating to remove an existing OGP node automatically.
+
 ## 0.0.25
 
 - **Shade Last Command Executed (GV8)**: new status alongside Last Command (GV7); reports Open, Close, Stop, or My Position when sent; starts as None on node startup; GV7 still tracks Pending / Completed / Failed from the gateway
