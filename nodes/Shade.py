@@ -21,6 +21,7 @@ from utils.rts_move import (
     DEFAULT_SPAN_SECONDS,
     compute_move_duration_seconds,
     direction_to_tahoma_command,
+    parse_span_command,
     validate_move_direction,
     validate_move_percent,
     validate_span_seconds,
@@ -530,26 +531,29 @@ class ShadeRts(Shade):
             command_name, parameters, update_last_cmd_exec=update_last_cmd_exec
         )
 
+    def _apply_span_seconds(self, span: int) -> None:
+        """Persist span time and push GV1 to the ISY."""
+        self.data["span_seconds"] = span
+        store_values(self)
+        self.setDriver("GV1", span, report=True, force=True, uom=58)
+        LOGGER.info(f"{self.lpfx}: total span move time set to {span}s")
+
     def cmdSetspan(self, command=None):
         LOGGER.info(f"cmd Set Span {self.lpfx}, {command}")
         if not command:
             LOGGER.error(f"{self.lpfx}: SETSPAN missing command payload")
             return
         try:
-            query = command.get("query", {})
-            span_raw = query.get("SPAN.uom58")
+            span_raw = parse_span_command(command)
             if span_raw is None:
-                LOGGER.error(f"{self.lpfx}: SETSPAN missing SPAN parameter")
+                LOGGER.error(f"{self.lpfx}: SETSPAN missing span value")
                 return
-            span = validate_span_seconds(int(span_raw))
+            span = validate_span_seconds(span_raw)
         except (TypeError, ValueError) as ex:
             LOGGER.error(f"{self.lpfx}: SETSPAN invalid span: {ex}")
             return
 
-        self.data["span_seconds"] = span
-        store_values(self)
-        self.setDriver("GV1", span, report=True, force=True, uom=58)
-        LOGGER.info(f"{self.lpfx}: total span move time set to {span}s")
+        self._apply_span_seconds(span)
         self.reportCmd("SETSPAN", 2)
 
     def cmdMovepct(self, command=None):

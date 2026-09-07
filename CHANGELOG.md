@@ -2,6 +2,10 @@
 
 
 
+## 0.0.29
+
+- **Fix SETSPAN not updating Total Span Move Time**: link command param to GV1 (`init="GV1"`) and read `command["value"]` like other PG3 plugins; ISY was sending the span in `value`, not `query`
+
 ## 0.0.28
 
 - **Fix RTS Total Span Move Time units**: GV1 and SETSPAN used UOM 101 (degrees); now UOM 58 (seconds), matching other PG3 plugins

@@ -62,3 +62,17 @@ def compute_move_duration_seconds(
     span = validate_span_seconds(span_seconds)
     raw = round(pct / 100 * span)
     return max(min_duration, raw)
+
+
+def parse_span_command(command: dict | None) -> int | None:
+    """Extract span seconds from an ISY SETSPAN command payload."""
+    if not command:
+        return None
+    value = command.get("value")
+    if value is not None:
+        return int(value)
+    query = command.get("query") or {}
+    for key in ("SPAN.uom58", "GV1.uom58", "SPAN", "GV1"):
+        if key in query:
+            return int(query[key])
+    return None

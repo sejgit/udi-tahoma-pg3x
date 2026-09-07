@@ -52,3 +52,12 @@ def test_validate_move_direction():
     assert validate_move_direction(1) == 1
     with pytest.raises(ValueError):
         validate_move_direction(2)
+
+
+def test_parse_span_command():
+    from utils.rts_move import parse_span_command
+
+    assert parse_span_command({"value": 26}) == 26
+    assert parse_span_command({"query": {"SPAN.uom58": 30}}) == 30
+    assert parse_span_command({"query": {"GV1.uom58": 12}}) == 12
+    assert parse_span_command({}) is None

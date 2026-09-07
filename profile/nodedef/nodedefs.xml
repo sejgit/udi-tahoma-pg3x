@@ -166,7 +166,7 @@
                     <p id="DIR" editor="MOVEDIR" />
                 </cmd>
                 <cmd id="SETSPAN">
-                    <p id="SPAN" editor="SPANSEC" />
+                    <p id="" editor="SPANSEC" init="GV1" />
                 </cmd>
             </accepts>
         </cmds>
