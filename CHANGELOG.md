@@ -5,10 +5,6 @@
 ## 0.0.27
 
 - **RTS Move By Percent**: new **MOVEPCT** command (percent 1–99, direction Up/Open or Down/Close) sends open or close, waits `(percent × total span) / 100` seconds, then sends stop; **SETSPAN** sets per-shade **Total Span Move Time** (GV1, default 8 s, persisted); **Last Command Executed** adds **Move By Percent**; RTS-only — io/Zigbee shades keep SETPOS
-- **Fix RTS Total Span Move Time units**: GV1 and SETSPAN use UOM 58 (seconds), not UOM 101 (degrees)
-- **Fix SETSPAN not updating GV1**: link command param to GV1 (`init="GV1"`) and read `command["value"]` like other PG3 plugins
-- **Fix RTS command labels in Admin Console**: add CMDP/PGM-CMD NLS for MOVEPCT and SETSPAN parameters
-- **Fix Easy UI missing SETSPAN/MOVEPCT controls**: mirror parameterized commands in nodedef `sends` (Easy UI renders from sends, not accepts alone)
 
 ## 0.0.26
 
