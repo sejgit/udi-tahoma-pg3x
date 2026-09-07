@@ -19,7 +19,16 @@
         <range uom="25" subset="0,1,2,3" nls="EXECSTAT" />
     </editor>
     <editor id="SHADECMDEXEC">
-        <range uom="25" subset="0,1,2,3,4" nls="SHADECMDEXEC" />
+        <range uom="25" subset="0,1,2,3,4,5" nls="SHADECMDEXEC" />
+    </editor>
+    <editor id="SPANSEC">
+        <range uom="101" min="1" max="999"/>
+    </editor>
+    <editor id="MOVPCT">
+        <range uom="100" min="1" max="99"/>
+    </editor>
+    <editor id="MOVEDIR">
+        <range uom="25" subset="0,1" nls="MOVEDIR" />
     </editor>
     <editor id="POSITION">
         <range uom="2" subset="0" />

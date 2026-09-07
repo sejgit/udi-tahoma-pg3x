@@ -11,16 +11,21 @@ def test_nodedef_rts_shade_minimal_status():
     assert 'editor="BATTERYST"' in section
     assert 'editor="EXECSTAT"' in section
     assert 'editor="SHADECMDEXEC"' in section
+    assert 'editor="SPANSEC"' in section
     assert "POSITION" not in section
     assert "TILT" not in section
     assert "SETPOS" not in section
-    for cmd in ("OPEN", "CLOSE", "STOP", "MY", "QUERY"):
+    for cmd in ("OPEN", "CLOSE", "STOP", "MY", "QUERY", "MOVEPCT", "SETSPAN"):
         assert f'id="{cmd}"' in section
 
 
 def test_nls_rts_shade_labels():
     nls = Path("profile/nls/en_us.txt").read_text()
     assert "ND-shadertsid-NAME = RTS Shade" in nls
+    assert "ST-shaderts-GV1-NAME = Total Span Move Time" in nls
     assert "ST-shaderts-GV7-NAME = Last Command" in nls
     assert "ST-shaderts-GV8-NAME = Last Command Executed" in nls
     assert "SHADECMDEXEC-0 = None" in nls
+    assert "SHADECMDEXEC-5 = Move By Percent" in nls
+    assert "CMD-shaderts-MOVEPCT-NAME = Move By Percent" in nls
+    assert "CMD-shaderts-SETSPAN-NAME = Set Span Move Time" in nls

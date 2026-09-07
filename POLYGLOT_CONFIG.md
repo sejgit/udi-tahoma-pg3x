@@ -231,7 +231,20 @@ Shade and scene nodes subscribe to shortPoll for Polyglot compatibility but do n
 
 ### RTS shades and Last Command
 
-RTS devices are discovered as **RTS Shade** nodes (Id, Battery, **Last Command**, **Last Command Executed** — no position or motion fields).
+RTS devices are discovered as **RTS Shade** nodes (Id, **Total Span Move Time**, Battery, **Last Command**, **Last Command Executed** — no position or motion fields).
+
+#### Timed move by percent (RTS only)
+
+For RTS motors without position feedback (e.g. Phantom Blinds), use **Move By Percent** to open or close partway:
+
+1. Set **Total Span Move Time** (GV1) — seconds for a full open or full close. Default is **8** seconds (legacy Somfy default). Use **Set Span Move Time** or set GV1 from a program; the value is saved per shade and survives reboots.
+2. Run **Move By Percent** with:
+   - **Move %** — 1 to 99
+   - **Direction** — Up (Open) or Down (Close)
+
+The plugin sends open or close, waits `(Move % × Total Span Move Time) / 100` seconds (minimum 1 second), then sends stop. There is **no stored position** — manual remote or app moves are not tracked.
+
+**Last Command Executed** shows **Move By Percent** for this command. **Last Command** still tracks gateway execution (Pending / Completed / Failed) for the open/close leg.
 
 **Last Command (GV7)** reports whether the TaHoma gateway finished handling your command:
 
@@ -243,7 +256,7 @@ RTS devices are discovered as **RTS Shade** nodes (Id, Battery, **Last Command**
 **Last Command Executed (GV8)** records which shade command you last sent:
 
 - **None** — At node startup (resets each restart)
-- **Open**, **Close**, **Stop**, **My Position** — Set when that command is sent from the ISY
+- **Open**, **Close**, **Stop**, **My Position**, **Move By Percent** — Set when that command is sent from the ISY
 
 Use **Last Command Executed** in programs when you need to know *what* was sent; use **Last Command** when you need to know *whether the gateway finished* it.
 

@@ -5,6 +5,7 @@ from pyoverkiz.enums.execution import ExecutionState
 from utils.exec_status import (
     LAST_CMD_COMPLETED,
     LAST_CMD_EXEC_CLOSE,
+    LAST_CMD_EXEC_MOVEPCT,
     LAST_CMD_EXEC_MY,
     LAST_CMD_EXEC_NONE,
     LAST_CMD_EXEC_OPEN,
@@ -39,6 +40,7 @@ def test_last_cmd_exec_labels():
     assert last_cmd_exec_label(LAST_CMD_EXEC_NONE) == "None"
     assert last_cmd_exec_label(LAST_CMD_EXEC_OPEN) == "Open"
     assert last_cmd_exec_label(LAST_CMD_EXEC_MY) == "My Position"
+    assert last_cmd_exec_label(LAST_CMD_EXEC_MOVEPCT) == "Move By Percent"
 
 
 def test_tahoma_command_to_last_cmd_exec():

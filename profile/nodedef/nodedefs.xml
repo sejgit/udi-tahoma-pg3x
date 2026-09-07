@@ -139,6 +139,7 @@
         <editors></editors>
         <sts>
             <st id="GV0" editor="ID" />
+            <st id="GV1" editor="SPANSEC" />
             <st id="GV6" editor="BATTERYST" />
             <st id="GV7" editor="EXECSTAT" />
             <st id="GV8" editor="SHADECMDEXEC" />
@@ -151,6 +152,8 @@
                 <cmd id="CLOSE" />
                 <cmd id="STOP" />
                 <cmd id="MY" />
+                <cmd id="MOVEPCT" />
+                <cmd id="SETSPAN" />
             </sends>
             <accepts>
                 <cmd id="OPEN" />
@@ -158,6 +161,13 @@
                 <cmd id="STOP" />
                 <cmd id="MY" />
                 <cmd id="QUERY" />
+                <cmd id="MOVEPCT">
+                    <p id="PCT" editor="MOVPCT" />
+                    <p id="DIR" editor="MOVEDIR" />
+                </cmd>
+                <cmd id="SETSPAN">
+                    <p id="SPAN" editor="SPANSEC" />
+                </cmd>
             </accepts>
         </cmds>
     </nodeDef>

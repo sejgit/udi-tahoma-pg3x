@@ -3,17 +3,27 @@
 (C) 2025 Stephen Jenkins
 """
 
-from threading import Thread
+from threading import Thread, Timer
 
 import udi_interface
 
 from utils.exec_status import (
+    LAST_CMD_EXEC_MOVEPCT,
     LAST_CMD_EXEC_NONE,
     LAST_CMD_FAILED,
     LAST_CMD_NONE,
     LAST_CMD_PENDING,
     last_cmd_exec_label,
     tahoma_command_to_last_cmd_exec,
+)
+from utils.node_funcs import FieldSpec, load_persistent_data, store_values
+from utils.rts_move import (
+    DEFAULT_SPAN_SECONDS,
+    compute_move_duration_seconds,
+    direction_to_tahoma_command,
+    validate_move_direction,
+    validate_move_percent,
+    validate_span_seconds,
 )
 from utils.device_capabilities import (
     CMD_CLOSURE,
@@ -35,9 +45,15 @@ from utils.device_capabilities import (
 
 LOGGER = udi_interface.LOGGER
 
-# RTS shade: ID, battery, last command, and open/close/stop/MY only
+# RTS shade: span time, battery, last command, open/close/stop/MY, move-by-%
 SHADE_RTS_DRIVERS = [
     {"driver": "GV0", "value": 0, "uom": 107, "name": "Shade Id"},
+    {
+        "driver": "GV1",
+        "value": DEFAULT_SPAN_SECONDS,
+        "uom": 101,
+        "name": "Total Span Move Time",
+    },
     {"driver": "GV6", "value": GV6_UNKNOWN, "uom": 25, "name": "Battery Status"},
     {"driver": "GV7", "value": LAST_CMD_NONE, "uom": 25, "name": "Last Command"},
     {
@@ -47,6 +63,12 @@ SHADE_RTS_DRIVERS = [
         "name": "Last Command Executed",
     },
 ]
+
+RTS_FIELDS: dict[str, FieldSpec] = {
+    "span_seconds": FieldSpec(
+        driver="GV1", default=DEFAULT_SPAN_SECONDS, data_type="state"
+    ),
+}
 
 # Shared driver definitions (full generic UI)
 SHADE_DRIVERS_FULL = [
@@ -397,15 +419,19 @@ class Shade(udi_interface.Node):
             else:
                 LOGGER.warning(f"{self.lpfx}: setOrientation not available on device")
 
-    def execute_tahoma_command(self, command_name, parameters):
+    def execute_tahoma_command(
+        self, command_name, parameters, *, update_last_cmd_exec: bool = True
+    ):
         import asyncio
 
-        exec_value = tahoma_command_to_last_cmd_exec(command_name)
-        if exec_value is not None:
-            self.set_last_command_executed(exec_value)
-            LOGGER.info(
-                f"{self.lpfx} Last Command Executed: {last_cmd_exec_label(exec_value)}"
-            )
+        if update_last_cmd_exec:
+            exec_value = tahoma_command_to_last_cmd_exec(command_name)
+            if exec_value is not None:
+                self.set_last_command_executed(exec_value)
+                LOGGER.info(
+                    f"{self.lpfx} Last Command Executed: "
+                    f"{last_cmd_exec_label(exec_value)}"
+                )
 
         try:
             exec_id = asyncio.run_coroutine_threadsafe(
@@ -470,11 +496,107 @@ class ShadeOnlyPrimary(Shade):
 
 
 class ShadeRts(Shade):
-    """RTS shade node: ID, battery, last command, and open/close/stop/MY only."""
+    """RTS shade node: span time, open/close/stop/MY, and timed move-by-percent."""
 
     id = "shadertsid"
 
     drivers = SHADE_RTS_DRIVERS
+
+    def __init__(self, poly, primary, address, name, sid):
+        super().__init__(poly, primary, address, name, sid)
+        self.data = {field: spec.default for field, spec in RTS_FIELDS.items()}
+        self._move_pct_timer: Timer | None = None
+        self.poly.subscribe(self.poly.STOP, self.stop, address)
+
+    def start(self):
+        self.controller.ready_event.wait()
+        load_persistent_data(self, RTS_FIELDS)
+        super().start()
+
+    def stop(self):
+        self._cancel_move_pct_timer()
+        LOGGER.info(f"stop: {self.lpfx}")
+
+    def _cancel_move_pct_timer(self):
+        if self._move_pct_timer is not None:
+            self._move_pct_timer.cancel()
+            self._move_pct_timer = None
+
+    def execute_tahoma_command(
+        self, command_name, parameters, *, update_last_cmd_exec: bool = True
+    ):
+        self._cancel_move_pct_timer()
+        return super().execute_tahoma_command(
+            command_name, parameters, update_last_cmd_exec=update_last_cmd_exec
+        )
+
+    def cmdSetspan(self, command=None):
+        LOGGER.info(f"cmd Set Span {self.lpfx}, {command}")
+        if not command:
+            LOGGER.error(f"{self.lpfx}: SETSPAN missing command payload")
+            return
+        try:
+            query = command.get("query", {})
+            span_raw = query.get("SPAN.uom101")
+            if span_raw is None:
+                LOGGER.error(f"{self.lpfx}: SETSPAN missing SPAN parameter")
+                return
+            span = validate_span_seconds(int(span_raw))
+        except (TypeError, ValueError) as ex:
+            LOGGER.error(f"{self.lpfx}: SETSPAN invalid span: {ex}")
+            return
+
+        self.data["span_seconds"] = span
+        store_values(self)
+        self.setDriver("GV1", span, report=True, force=True, uom=101)
+        LOGGER.info(f"{self.lpfx}: total span move time set to {span}s")
+        self.reportCmd("SETSPAN", 2)
+
+    def cmdMovepct(self, command=None):
+        LOGGER.info(f"cmd Move By Percent {self.lpfx}, {command}")
+        if not command:
+            LOGGER.error(f"{self.lpfx}: MOVEPCT missing command payload")
+            return
+        try:
+            query = command.get("query", {})
+            pct_raw = query.get("PCT.uom100")
+            dir_raw = query.get("DIR.uom25")
+            if pct_raw is None or dir_raw is None:
+                LOGGER.error(f"{self.lpfx}: MOVEPCT requires PCT and DIR parameters")
+                return
+            percent = validate_move_percent(int(pct_raw))
+            direction = validate_move_direction(int(dir_raw))
+            span = validate_span_seconds(self.data["span_seconds"])
+        except (TypeError, ValueError) as ex:
+            LOGGER.error(f"{self.lpfx}: MOVEPCT invalid parameters: {ex}")
+            return
+
+        duration = compute_move_duration_seconds(percent, span)
+        tahoma_cmd = direction_to_tahoma_command(direction)
+        self._cancel_move_pct_timer()
+        self.set_last_command_executed(LAST_CMD_EXEC_MOVEPCT)
+        LOGGER.info(
+            f"{self.lpfx} Last Command Executed: "
+            f"{last_cmd_exec_label(LAST_CMD_EXEC_MOVEPCT)}"
+        )
+        exec_id = self.execute_tahoma_command(
+            tahoma_cmd, [], update_last_cmd_exec=False
+        )
+        if not exec_id:
+            return
+
+        LOGGER.info(
+            f"{self.lpfx}: MOVEPCT {percent}% {tahoma_cmd} "
+            f"(span={span}s, wait={duration}s before stop)"
+        )
+        self._move_pct_timer = Timer(duration, self._on_move_pct_timer)
+        self._move_pct_timer.start()
+        self.reportCmd("MOVEPCT", 2)
+
+    def _on_move_pct_timer(self):
+        self._move_pct_timer = None
+        LOGGER.info(f"{self.lpfx}: MOVEPCT timer elapsed, sending stop")
+        self.execute_tahoma_command("stop", [], update_last_cmd_exec=False)
 
     def _apply_profile_drivers(self):
         """RTS nodes only expose battery status (hardwired N/A for RTS)."""
@@ -500,4 +622,6 @@ ShadeRts.commands = {
     "STOP": ShadeRts.cmdStop,
     "MY": ShadeRts.cmdMy,
     "QUERY": ShadeRts.query,
+    "MOVEPCT": ShadeRts.cmdMovepct,
+    "SETSPAN": ShadeRts.cmdSetspan,
 }

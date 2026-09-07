@@ -28,6 +28,7 @@ ND-shadertsid-NAME = RTS Shade
 ND-shadertsid-ICON = GenericRspCtl
 
 ST-shaderts-GV0-NAME = Id
+ST-shaderts-GV1-NAME = Total Span Move Time
 ST-shaderts-GV6-NAME = Battery
 ST-shaderts-GV7-NAME = Last Command
 ST-shaderts-GV8-NAME = Last Command Executed
@@ -35,6 +36,8 @@ CMD-shaderts-OPEN-NAME = Open
 CMD-shaderts-CLOSE-NAME = Close
 CMD-shaderts-STOP-NAME = Stop
 CMD-shaderts-MY-NAME = My Position
+CMD-shaderts-MOVEPCT-NAME = Move By Percent
+CMD-shaderts-SETSPAN-NAME = Set Span Move Time
 CMD-shaderts-QUERY-NAME = Query
 CMD-shaderts-DON-NAME = On
 CMD-shaderts-DOF-NAME = Off
@@ -90,6 +93,10 @@ SHADECMDEXEC-1 = Open
 SHADECMDEXEC-2 = Close
 SHADECMDEXEC-3 = Stop
 SHADECMDEXEC-4 = My Position
+SHADECMDEXEC-5 = Move By Percent
+
+MOVEDIR-0 = Up (Open)
+MOVEDIR-1 = Down (Close)
 
 BOOL-2 = N/A
 

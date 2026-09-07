@@ -31,7 +31,7 @@ NODE_COMMANDS = {
     },
     "shadenotiltid": {"OPEN", "CLOSE", "STOP", "MY", "QUERY", "SETPOS"},
     "shadeonlyprimid": {"OPEN", "CLOSE", "STOP", "MY", "QUERY", "SETPOS"},
-    "shadertsid": {"OPEN", "CLOSE", "STOP", "MY", "QUERY"},
+    "shadertsid": {"OPEN", "CLOSE", "STOP", "MY", "QUERY", "MOVEPCT", "SETSPAN"},
 }
 
 REPORTED_COMMANDS = {
