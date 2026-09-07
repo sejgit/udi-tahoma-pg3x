@@ -42,6 +42,13 @@ CMD-shaderts-QUERY-NAME = Query
 CMD-shaderts-DON-NAME = On
 CMD-shaderts-DOF-NAME = Off
 
+CMDP-PCT-NAME = Move Percent
+CMDP-DIR-NAME = Direction
+CMDP-SPAN-NAME = Span Seconds
+
+PGM-CMD-MOVEPCT-FMT = /PCT/${c}/->Move ${v}% / /DIR/${c}/->${n} /
+PGM-CMD-SETSPAN-FMT = /->Span ${v} sec/
+
 ST-shade-ST-NAME = Motion
 ST-shade-GV0-NAME = Id
 ST-shade-GV1-NAME = RoomID

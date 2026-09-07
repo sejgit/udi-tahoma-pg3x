@@ -152,8 +152,13 @@
                 <cmd id="CLOSE" />
                 <cmd id="STOP" />
                 <cmd id="MY" />
-                <cmd id="MOVEPCT" />
-                <cmd id="SETSPAN" />
+                <cmd id="MOVEPCT">
+                    <p id="PCT" editor="MOVPCT" />
+                    <p id="DIR" editor="MOVEDIR" />
+                </cmd>
+                <cmd id="SETSPAN">
+                    <p id="" editor="SPANSEC" init="GV1" />
+                </cmd>
             </sends>
             <accepts>
                 <cmd id="OPEN" />

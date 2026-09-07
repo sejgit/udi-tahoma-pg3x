@@ -17,6 +17,17 @@ def test_nodedef_rts_shade_minimal_status():
     assert "SETPOS" not in section
     for cmd in ("OPEN", "CLOSE", "STOP", "MY", "QUERY", "MOVEPCT", "SETSPAN"):
         assert f'id="{cmd}"' in section
+    assert 'id="PCT"' in section
+    assert 'id="DIR"' in section
+    assert 'init="GV1"' in section
+
+
+def test_nls_rts_command_parameter_labels():
+    nls = Path("profile/nls/en_us.txt").read_text()
+    assert "CMDP-PCT-NAME = Move Percent" in nls
+    assert "CMDP-DIR-NAME = Direction" in nls
+    assert "PGM-CMD-MOVEPCT-FMT" in nls
+    assert "PGM-CMD-SETSPAN-FMT" in nls
 
 
 def test_nls_rts_shade_labels():
