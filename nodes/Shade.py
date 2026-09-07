@@ -51,7 +51,7 @@ SHADE_RTS_DRIVERS = [
     {
         "driver": "GV1",
         "value": DEFAULT_SPAN_SECONDS,
-        "uom": 101,
+        "uom": 58,
         "name": "Total Span Move Time",
     },
     {"driver": "GV6", "value": GV6_UNKNOWN, "uom": 25, "name": "Battery Status"},
@@ -537,7 +537,7 @@ class ShadeRts(Shade):
             return
         try:
             query = command.get("query", {})
-            span_raw = query.get("SPAN.uom101")
+            span_raw = query.get("SPAN.uom58")
             if span_raw is None:
                 LOGGER.error(f"{self.lpfx}: SETSPAN missing SPAN parameter")
                 return
@@ -548,7 +548,7 @@ class ShadeRts(Shade):
 
         self.data["span_seconds"] = span
         store_values(self)
-        self.setDriver("GV1", span, report=True, force=True, uom=101)
+        self.setDriver("GV1", span, report=True, force=True, uom=58)
         LOGGER.info(f"{self.lpfx}: total span move time set to {span}s")
         self.reportCmd("SETSPAN", 2)
 

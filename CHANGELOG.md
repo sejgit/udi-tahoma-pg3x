@@ -2,6 +2,10 @@
 
 
 
+## 0.0.28
+
+- **Fix RTS Total Span Move Time units**: GV1 and SETSPAN used UOM 101 (degrees); now UOM 58 (seconds), matching other PG3 plugins
+
 ## 0.0.27
 
 - **RTS Move By Percent**: new **MOVEPCT** command (percent 1–99, direction Up/Open or Down/Close) sends open or close, waits `(percent × total span) / 100` seconds, then sends stop; **SETSPAN** sets per-shade **Total Span Move Time** (GV1, default 8 s, persisted); **Last Command Executed** adds **Move By Percent**; RTS-only — io/Zigbee shades keep SETPOS
